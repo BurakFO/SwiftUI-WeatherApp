@@ -6,46 +6,58 @@
 //
 
 import SwiftUI
- 
+
 struct ContentView: View {
+    
+    @State private var isNight = false
+    
+    
     var body: some View {
         ZStack {
-            BackgroundView(topColor: .blue , bottomColor: Color("lightBlue"))
+            BackgroundView(isNight: isNight)
             
             VStack{
                 CityTextView(cityName: "Miami, FL")
                 
-                MainWeatherStatusView(imageName:"cloud.sun.fill", temperature: 76)
+                MainWeatherStatusView(imageName: isNight ? "moon.stars" : "cloud.sun.fill", temperature: 76)
+                   
                 
                 VStack (spacing : 10){
-                   
+                    
                     HStack (spacing: 20){
-                        WeatherDayView(dayOfWeek: "TUE", imageName: "sun.max.fill", temperature: 23)
-                        WeatherDayView(dayOfWeek: "WED", imageName: "cloud.sun.rain.fill", temperature: 21)
-                        WeatherDayView(dayOfWeek: "THU", imageName: "cloud.sun.fill", temperature: 22)
-                        WeatherDayView(dayOfWeek: "FRI", imageName: "cloud.sun.fill", temperature: 23)
-                        WeatherDayView(dayOfWeek: "SAT", imageName: "sun.rain.fill", temperature: 21)
+                        WeatherDayView(dayOfWeek: "TUE",
+                                       imageName: "sun.max.fill",
+                                       temperature: 23)
+                        
+                        WeatherDayView(dayOfWeek: "WED",
+                                       imageName: "cloud.sun.rain.fill",
+                                       temperature: 21)
+                        
+                        WeatherDayView(dayOfWeek: "THU",
+                                       imageName: "cloud.sun.fill",
+                                       temperature: 22)
+                        
+                        WeatherDayView(dayOfWeek: "FRI",
+                                       imageName: "cloud.sun.fill",
+                                       temperature: 23)
+                        
+                        WeatherDayView(dayOfWeek: "SAT",
+                                       imageName: "sun.rain.fill",
+                                       temperature: 21)
                     }
                     
                     Spacer()
-                
+                    
+                    NewWeatherButton(isNightSetter: $isNight, title: "New Change Day Time", backgroundColor: Color.white)
                     
                     Button{
-                         print("tapped")
+                        isNight.toggle()
                     } label : {
-                        Text("Change Day Time")
-                            .frame(width: 280, height: 50)
-                            .background(Color.white)
-                            .cornerRadius(10)
+                        WeatherButton(title: "Change Day Time", backgroundColor: Color.white)
                     }
-                    
                     Spacer()
                 }
-                
             }
-            
-            
-            
         }
         
         
@@ -55,6 +67,7 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
 
 struct WeatherDayView: View {
     
@@ -69,7 +82,7 @@ struct WeatherDayView: View {
                 .foregroundStyle(.white)
             
             Image(systemName: imageName)
-                .renderingMode(.original)
+                .symbolRenderingMode(.multicolor )
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 40, height: 40)
@@ -86,17 +99,17 @@ struct WeatherDayView: View {
 
 struct BackgroundView: View {
     
-    var topColor : Color
-    var bottomColor : Color
+    var isNight : Bool
     
     var body: some View {
-        LinearGradient(gradient: Gradient(colors: [topColor, bottomColor]), startPoint: .topLeading, endPoint: .bottomTrailing)
-            .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+        LinearGradient(gradient:  Gradient(colors: [ isNight ? .black : .blue , isNight ? .gray : Color("lightBlue")]),
+                       startPoint: .topLeading, endPoint: .bottomTrailing)
+        .ignoresSafeArea()
     }
 }
 
 struct CityTextView : View {
-        
+    
     var cityName : String
     
     var body: some View{
@@ -107,7 +120,27 @@ struct CityTextView : View {
     }
 }
 
+struct NewWeatherButton : View {
+    
+    @Binding var isNightSetter : Bool
+    var title : String
+    var backgroundColor : Color
+    
+    var body: some View {
+        
+        Button{
+            isNightSetter.toggle()
+        } label : {
+            Text(title)
+                .frame(width: 280, height: 50)
+                .background(backgroundColor.gradient)
+                .cornerRadius(10)
+        }
+    }
+}
+
 struct MainWeatherStatusView : View {
+    
     
     var imageName : String
     var temperature : Int
@@ -118,11 +151,12 @@ struct MainWeatherStatusView : View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 180, height: 180)
+            .foregroundStyle(.white)
         
         Text("\(temperature)°")
             .font(.system(size: 70, weight: .medium))
             .foregroundStyle(.white)
-        
             .padding(.bottom, 48)
     }
 }
+
